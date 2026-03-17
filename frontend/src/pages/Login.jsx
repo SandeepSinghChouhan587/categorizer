@@ -12,7 +12,7 @@ const AuthPage = () => {
 
   const [isLogin,setIsLogin] = useState(true);
   const [loading,setLoading] = useState(false);
-  const [isVerifying,setIsVerifying] = useState(true);
+  const [isVerifying,setIsVerifying] = useState(false);
   const [storedTempToken,setTempToken] = useState("");
   const {setUserData} = useContext(AppContext);
   
