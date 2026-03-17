@@ -86,7 +86,7 @@ const public_key = import.meta.env.VITE_PUBLIC_KEY;
           <div className="space-y-4 text-gray-400">
 
             <p>
-               <MdOutlineAlternateEmail className="inline mx-2" /> <strong>Email: </strong>support@categorizer.app
+               <MdOutlineAlternateEmail className="inline mx-2" /> <strong>Email: </strong>categorizerx@gmail.com
             </p>
 
             <p>
