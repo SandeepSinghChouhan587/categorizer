@@ -1,8 +1,10 @@
 const User = require("../models/User");
+const Otp = require("../models/Otp");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
 const sgMail = require("@sendgrid/mail");
+const { default: mongoose } = require("mongoose");
 
 // Nodemailer transporter
 const transporter = nodemailer.createTransport({
@@ -47,13 +49,17 @@ const register = async (req,res)=>{
     const salt = await bcrypt.genSalt(10);
     const otpHash = await bcrypt.hash(otp,salt);
 
+    const savedOtp = await Otp.create({
+      email:email,
+      otpHash:otpHash
+    });
+
     // create temporary token with user data
     const tempToken = jwt.sign(
       {
         name,
         email,
         password,
-        otpHash,
         otpExpiry: Date.now() + 5*60*1000
       },
       process.env.JWT_SECRET,
@@ -77,7 +83,6 @@ const msg = {
 
 await sgMail.send(msg);
 
-  console.log("tokensend:",tempToken);
     res.status(200).json({
       message:"OTP sent to email",
       requiresVerification:true,
@@ -109,7 +114,9 @@ const verifyOtp = async (req,res)=>{
     }
 
     // compare OTP
-    const isValid = await bcrypt.compare(otp,decoded.otpHash);
+    const storedOtp = await Otp.findOne({email});
+
+    const isValid = await bcrypt.compare(otp,storedOtp.otpHash);
 
     if(!isValid){
       return res.status(400).json({message:"Invalid OTP"});
@@ -122,6 +129,11 @@ const verifyOtp = async (req,res)=>{
       password:decoded.password,
       isVerified:true
     });
+
+    if(user){
+     const deletedOtp = await Otp.findOneAndDelete({ email:email});
+
+    }
 
     res.status(201).json({
       message:"Email verified and account created successfully"
